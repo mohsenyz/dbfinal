@@ -26,31 +26,35 @@ class EmployeeDeductionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     * @param Employee $employee
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request, Employee $employee)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'type' => 'string|required',
             'amount' => 'numeric|required',
-            'reported_at' => 'datetime|required',
+            'reported_at' => 'date|required',
             'description' => 'string|nullable'
         ]);
 
-        $employee->deductions()
-            ->create($request->validated());
+        $deduction = $employee->deductions()
+            ->make($validatedData);
+        $deduction->reportedBy()->associate(auth()->user());
+        $deduction->save();
 
-        return $this->respondSuccess();
+        return $this->respondSuccessWithModel($deduction);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param Employee $employee
+     * @param Deduction $deduction
      * @return DeductionResource
      */
-    public function show(Deduction $deduction)
+    public function show(Employee $employee, Deduction $deduction)
     {
         return new DeductionResource($deduction);
     }
@@ -64,14 +68,14 @@ class EmployeeDeductionController extends Controller
      */
     public function update(Request $request, Deduction $deduction)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'type' => 'string|nullable',
             'amount' => 'numeric|nullable',
-            'reported_at' => 'datetime|nullable',
+            'reported_at' => 'date|nullable',
             'description' => 'string|nullable'
         ]);
 
-        $deduction->update($request->validated());
+        $deduction->update(array_filter($validatedData));
 
         return $this->respondSuccess();
     }

@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'auth'], function ($router) {
 
-    Route::post('login', [AuthController::class, 'login']);
+    Route::post('login', [AuthController::class, 'login'])->name('login');
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('me', [AuthController::class, 'me']);
@@ -50,4 +50,27 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
     Route::delete('/employee/{employee}/deduction/{deduction:id}', [EmployeeDeductionController::class, 'destroy']);
 
     Route::put('company', [CompanyController::class, 'updateCurrent']);
+
+
+    // absences (1h)
+
+
+
+    // assistance (1h)
+
+
+    // earning (1h)
+
+
+    // installment and loan (1h)
+
+
+    // paycheck (1h)
+
+
+
+    // timesheet (1h)
+
+
+
 });

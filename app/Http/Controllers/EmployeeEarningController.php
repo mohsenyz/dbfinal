@@ -32,16 +32,18 @@ class EmployeeEarningController extends Controller
      */
     public function store(Request $request, Employee $employee)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'type' => 'string|required',
             'amount' => 'numeric|required',
             'reported_at' => 'datetime|required_at',
         ]);
 
-        $employee->earnings()
-            ->create($request->validated());
+        $earning = $employee->earnings()
+            ->make($validatedData);
+        $earning->reportedBy()->associate(auth()->user());
+        $earning->save();
 
-        return $this->respondSuccess();
+        return $this->respondSuccessWithModel($earning);
     }
 
     /**
@@ -64,13 +66,13 @@ class EmployeeEarningController extends Controller
      */
     public function update(Request $request, Earning $earning)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'type' => 'string|nullable',
             'amount' => 'numeric|nullable',
             'reported_at' => 'datetime|nullable',
         ]);
 
-        $earning->update($request->validated());
+        $earning->update(array_filter($validatedData));
 
         return $this->respondSuccess();
     }

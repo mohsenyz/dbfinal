@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 
 class EmployeeController extends Controller
 {
@@ -18,7 +17,7 @@ class EmployeeController extends Controller
     protected $validationForCreating = [
         'first_name' => 'string|required',
         'last_name' => 'string|required',
-        'phone_number' => 'string|phone|required',
+        'phone_number' => 'string|required|unique:employees',
         'username' => [
             'unique:' . Employee::class,
             'required',
@@ -32,7 +31,7 @@ class EmployeeController extends Controller
     protected $validationForUpdating = [
         'first_name' => 'string|nullable',
         'last_name' => 'string|nullable',
-        'phone_number' => 'string|phone|nullable',
+        'phone_number' => 'string|nullable|unique:employees',
         'username' => [
             'unique:' . Employee::class,
             'nullable',
@@ -50,7 +49,7 @@ class EmployeeController extends Controller
     public function index()
     {
         return new EmployeeCollection(
-            $this->currentEmployee()->company->employees
+            $this->currentEmployee()->company->employees()->paginate()
         );
     }
 
@@ -62,13 +61,13 @@ class EmployeeController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $request->validate($this->validationForCreating);
+        $validatedData = $request->validate($this->validationForCreating);
 
         $employee =  $this->currentEmployee()
             ->company
             ->employees()
-            ->create($request->validated());
-        return $this->respondSuccess();
+            ->create($validatedData);
+        return $this->respondSuccessWithModel($employee);
     }
 
     /**
@@ -85,18 +84,17 @@ class EmployeeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param FormRequest $request
+     * @param Request $request
      * @param Employee $employee
      * @return JsonResponse
      */
-    public function update(FormRequest $request, Employee $employee): JsonResponse
+    public function update(Request $request, Employee $employee): JsonResponse
     {
-        $request->validate($this->validationForUpdating);
-        $validatedData = $request->validated();
+        $validatedData = $request->validate($this->validationForUpdating);
         if ($request->filled('password')) {
             $validatedData['password'] = Hash::make($validatedData['password']);
         }
-        $employee->update(Arr::except($validatedData, ['username', 'id']));
+        $employee->update(Arr::except(array_filter($validatedData), ['username', 'id']));
 
         return $this->respondSuccess();
     }
