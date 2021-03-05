@@ -28,6 +28,15 @@ class DatabaseSeeder extends Seeder
                 'username' => 'test'
             ]);
 
+        Employee::factory(1)
+            ->admin()
+            ->for($company)
+            ->has(Deduction::factory()->count(10), 'deductions')
+            ->has(Earning::factory()->count(10), 'earnings')
+            ->create([
+                'username' => 'admin-test'
+            ]);
+
 
         Company::factory()->count(20)->create();
     }
