@@ -15,7 +15,7 @@ class EmployeeResource extends JsonResource
     public function toArray($request): array
     {
         return array_merge(parent::toArray($request), [
-            'active_contract' => new ContractResource($this->whenLoaded('activeContract'))
+            'active_contract' => new ContractResource($this->whenLoaded('activeContract')),
         ]);
     }
 }

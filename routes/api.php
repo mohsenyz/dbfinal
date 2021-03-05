@@ -5,6 +5,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeContractController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDeductionController;
+use App\Http\Controllers\EmployeeEarningController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +49,12 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
     Route::get('/employee/{employee}/deduction/{deduction:id}', [EmployeeDeductionController::class, 'show']);
     Route::put('/employee/{employee}/deduction/{deduction:id}', [EmployeeDeductionController::class, 'update']);
     Route::delete('/employee/{employee}/deduction/{deduction:id}', [EmployeeDeductionController::class, 'destroy']);
+
+    Route::get('/employee/{employee}/earning', [EmployeeEarningController::class, 'index']);
+    Route::post('/employee/{employee}/earning', [EmployeeEarningController::class, 'store']);
+    Route::get('/employee/{employee}/earning/{earning,:id}', [EmployeeEarningController::class, 'show']);
+    Route::put('/employee/{employee}/earning/{earning:id}', [EmployeeEarningController::class, 'update']);
+    Route::delete('/employee/{employee}/earning/{earning:id}', [EmployeeEarningController::class, 'destroy']);
 
     Route::put('company', [CompanyController::class, 'updateCurrent']);
 

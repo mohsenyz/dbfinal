@@ -49,4 +49,17 @@ class EmployeeFactory extends Factory
             ];
         });
     }
+
+
+
+    public function admin()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'role' => Employee::ROLE_ADMIN,
+            ];
+        });
+    }
+
 }
+

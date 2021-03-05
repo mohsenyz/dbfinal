@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\EmployeeResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -41,8 +42,10 @@ class AuthController extends Controller
     public function me(): JsonResponse
     {
         return response()->json(
-            auth()->user()
-                ->load('company')
+            new EmployeeResource(
+                auth()->user()
+                    ->load('company')
+            )
         );
     }
 

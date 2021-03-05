@@ -71,6 +71,8 @@ class Employee extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable, SoftDeletes;
 
+    const ROLE_EMPLOYEE = 'employee',
+        ROLE_ADMIN = 'admin';
 
     /**
      * @var string[]
@@ -144,6 +146,16 @@ class Employee extends Authenticatable implements JWTSubject
     public function getJWTIdentifier()
     {
         return $this->getKey();
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->getAttribute('role') == self::ROLE_ADMIN;
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->getAttribute('role') == self::ROLE_EMPLOYEE;
     }
 
     public function getJWTCustomClaims(): array

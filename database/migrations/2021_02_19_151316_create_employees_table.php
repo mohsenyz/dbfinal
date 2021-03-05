@@ -21,6 +21,7 @@ class CreateEmployeesTable extends Migration
             $table->string('username')->unique();
             $table->string('password');
             $table->string('national_id')->nullable();
+            $table->string('role')->default('employee');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
