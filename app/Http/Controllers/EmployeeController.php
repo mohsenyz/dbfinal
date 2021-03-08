@@ -94,7 +94,7 @@ class EmployeeController extends Controller
         if ($request->filled('password')) {
             $validatedData['password'] = Hash::make($validatedData['password']);
         }
-        $employee->update(Arr::except(array_filter($validatedData), ['username', 'id']));
+        $employee->update(Arr::except(array_filter($validatedData), ['id']));
 
         return $this->respondSuccess();
     }
