@@ -34,4 +34,42 @@ use Illuminate\Database\Eloquent\Model;
 class Absence extends Model
 {
     use HasFactory;
+
+    const TYPE_UNKNOWN = 'unknown';
+
+    public $timestamps = false;
+
+    protected $fillable = [
+        'started_at',
+        'ended_at',
+        'description',
+        'type',
+        'requested_at',
+        'accepted_at',
+        'rejected_at'
+    ];
+
+
+    public function accept() {
+        $this->setAttribute('accepted_at', now());
+        $this->acceptedBy()->associate(auth()->user());
+    }
+
+
+    public function reject() {
+        $this->setAttribute('rejected_by', now());
+        $this->rejectedBy()->associate(auth()->user());
+    }
+
+    public function employee() {
+        return $this->belongsTo(Employee::class, 'requested_by');
+    }
+
+    public function acceptedBy() {
+        return $this->belongsTo(Employee::class, 'accepted_by');
+    }
+
+    public function rejectedBy() {
+        return $this->belongsTo(Employee::class, 'rejected_by');
+    }
 }

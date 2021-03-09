@@ -58,8 +58,8 @@ class Contract extends Model
 
     public function scopeActiveAt(Builder $builder, Carbon $time): Builder
     {
-        return $builder->whereDate('ends_at', '<=', $time)
-            ->whereDate('starts_at', '>=', $time);
+        return $builder->where('ends_at', '>=', $time)
+            ->where('starts_at', '<=', $time);
     }
 
 
