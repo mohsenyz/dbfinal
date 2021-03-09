@@ -20,7 +20,7 @@ class CreateContractsTable extends Migration
             $table->timestamp('starts_at')->useCurrent();
             $table->timestamp('ends_at');
             $table->string('pay_check_period');
-            $table->integer('required_working_horus');
+            $table->integer('required_working_hours');
             $table->integer('allowed_absence_hours');
 
             $table->foreignIdFor(Employee::class);

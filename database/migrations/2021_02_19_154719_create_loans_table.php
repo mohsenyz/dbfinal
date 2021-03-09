@@ -16,11 +16,14 @@ class CreateLoansTable extends Migration
     {
         Schema::create('loans', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('requested_at');
-            $table->timestamp('paid_at');
-            $table->text('description');
+            $table->timestamp('requested_at')->useCurrent();
+            $table->timestamp('paid_at')->nullable();
+            $table->text('description')->nullable();
+            $table->timestamp('accepted_at')->nullable();
+            $table->timestamp('rejected_at')->nullable();
 
-            $table->foreignIdFor(Employee::class, 'accepted_by');
+            $table->foreignIdFor(Employee::class, 'accepted_by')->nullable();
+            $table->foreignIdFor(Employee::class, 'rejected_by')->nullable();
             $table->foreignIdFor(Employee::class, 'requested_by');
             $table->timestamps();
         });

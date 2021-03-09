@@ -20,7 +20,7 @@ class CreateInstallmentsTable extends Migration
 
             $table->integer('amount');
             $table->timestamp('due_date');
-            $table->timestamp('given_back_at');
+            $table->timestamp('given_back_at')->nullable();
 
             $table->foreignIdFor(Loan::class);
         });

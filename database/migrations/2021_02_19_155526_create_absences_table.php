@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Absence;
 use App\Models\Employee;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,13 +19,15 @@ class CreateAbsencesTable extends Migration
             $table->id();
             $table->timestamp('started_at');
             $table->timestamp('ended_at');
-            $table->text('description');
-            $table->string('type');
-            $table->timestamp('requested_at');
-            $table->timestamp('accepted_at');
+            $table->text('description')->nullable();
+            $table->string('type')->default(Absence::TYPE_UNKNOWN);
+            $table->timestamp('requested_at')->useCurrent();
+            $table->timestamp('accepted_at')->nullable();
+            $table->timestamp('rejected_at')->nullable();
 
             $table->foreignIdFor(Employee::class, 'requested_by');
-            $table->foreignIdFor(Employee::class, 'accepted_by');
+            $table->foreignIdFor(Employee::class, 'accepted_by')->nullable();
+            $table->foreignIdFor(Employee::class, 'rejected_by')->nullable();
         });
     }
 

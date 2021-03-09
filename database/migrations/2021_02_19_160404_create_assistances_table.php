@@ -17,14 +17,14 @@ class CreateAssistancesTable extends Migration
         Schema::create('assistances', function (Blueprint $table) {
             $table->id();
             $table->integer('amount');
-            $table->timestamp('paid_at');
-            $table->timestamp('requested_at');
-            $table->timestamp('accepted_at');
-            $table->timestamp('rejected_at');
+            $table->timestamp('paid_at')->nullable();
+            $table->timestamp('requested_at')->useCurrent();
+            $table->timestamp('accepted_at')->nullable();
+            $table->timestamp('rejected_at')->nullable();
 
             $table->foreignIdFor(Employee::class, 'requested_by');
-            $table->foreignIdFor(Employee::class, 'accepted_by');
-            $table->foreignIdFor(Employee::class, 'rejected_by');
+            $table->foreignIdFor(Employee::class, 'accepted_by')->nullable();
+            $table->foreignIdFor(Employee::class, 'rejected_by')->nullable();
         });
     }
 
