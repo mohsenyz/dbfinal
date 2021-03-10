@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Repositories\EmployeeAbsenceRepository;
+use App\Repositories\LoanRepository;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,9 +38,31 @@ class Loan extends Model
     use HasFactory;
 
     protected $fillable = [
-        'description'
+        'description',
+        'requested_at',
+        'paid_at'
     ];
 
+    public function installments() {
+        return $this->hasMany(Installment::class);
+    }
+
+    public function accept() {
+        resolve(LoanRepository::class)
+            ->updateLoan([
+                'accepted_at' => now(),
+                'accepted_by' => auth()->user()->id
+            ], $this->getAttribute('id'));
+    }
+
+
+    public function reject() {
+        resolve(LoanRepository::class)
+            ->updateLoan([
+                'rejected_at' => now(),
+                'rejected_by' => auth()->user()->id
+            ], $this->getAttribute('id'));
+    }
 
     public function employee() {
         return $this->belongsTo(Employee::class, 'requested_by');
@@ -46,5 +70,9 @@ class Loan extends Model
 
     public function acceptedBy() {
         return $this->belongsTo(Employee::class, 'accepted_by');
+    }
+
+    public function rejectedBy() {
+        return $this->belongsTo(Employee::class, 'rejected_by');
     }
 }

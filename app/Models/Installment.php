@@ -30,4 +30,15 @@ use Illuminate\Database\Eloquent\Model;
 class Installment extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'amount',
+        'due_date',
+        'given_back_at',
+    ];
+
+
+    public function loan() {
+        return $this->belongsTo(Loan::class);
+    }
 }
