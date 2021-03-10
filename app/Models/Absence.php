@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Repositories\EmployeeAbsenceRepository;
+use App\Repositories\EmployeeAssistanceRepository;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -49,16 +51,21 @@ class Absence extends Model
         'rejected_at'
     ];
 
-
     public function accept() {
-        $this->setAttribute('accepted_at', now());
-        $this->acceptedBy()->associate(auth()->user());
+        resolve(EmployeeAbsenceRepository::class)
+            ->updateAbsence([
+                'accepted_at' => now(),
+                'accepted_by' => auth()->user()->id
+            ], $this->getAttribute('id'));
     }
 
 
     public function reject() {
-        $this->setAttribute('rejected_by', now());
-        $this->rejectedBy()->associate(auth()->user());
+        resolve(EmployeeAbsenceRepository::class)
+            ->updateAbsence([
+                'rejected_at' => now(),
+                'rejected_by' => auth()->user()->id
+            ], $this->getAttribute('id'));
     }
 
     public function employee() {
