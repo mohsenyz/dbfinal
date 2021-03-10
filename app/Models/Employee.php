@@ -31,7 +31,6 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property-read \App\Models\Contract|null $activeContract
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Assistance[] $assistances
  * @property-read int|null $assistances_count
- * @property-read \App\Models\Company|null $company
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Contract[] $contracts
  * @property-read int|null $contracts_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Deduction[] $deductions
@@ -133,6 +132,10 @@ class Employee extends Authenticatable implements JWTSubject
 
     public function assistances() {
         return $this->hasMany(Assistance::class, 'requested_by');
+    }
+
+    public function absences() {
+        return $this->hasMany(Absence::class, 'requested_by');
     }
 
     public function loans() {

@@ -3,19 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\EmployeeResource;
+use App\Http\Resources\EmployeeWithCompanyResource;
+use App\Repositories\EmployeeRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+
+    /**
+     * @var EmployeeRepository
+     */
+    protected $employeeRepository;
+
     /**
      * Create a new AuthController instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(EmployeeRepository $employeeRepository)
     {
         $this->middleware('auth:api', ['except' => ['login']]);
+        $this->employeeRepository = $employeeRepository;
     }
 
     /**
@@ -25,13 +35,13 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        $credentials = request(['username', 'password']);
 
-        if (! $token = auth()->attempt($credentials)) {
+        $employee = $this->employeeRepository->findEmployeeByUsername($request->username);
+        if ($employee == null || !Hash::check($request->password, $employee->password)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return $this->respondWithToken($token);
+        return $this->respondWithToken(auth()->login($employee));
     }
 
     /**
@@ -42,9 +52,8 @@ class AuthController extends Controller
     public function me(): JsonResponse
     {
         return response()->json(
-            new EmployeeResource(
+            new EmployeeWithCompanyResource(
                 auth()->user()
-                    ->load('company')
             )
         );
     }
