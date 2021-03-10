@@ -109,4 +109,10 @@ class EmployeeDeductionController extends Controller
         );
         return $this->respondSuccess();
     }
+
+    public function sumOfAllDeductionsAmountByEmployeeId() {
+        return json_encode($this->employeeDeductionRepository
+            ->sumOfAllDeductionsAmountByEmployeeId($this->currentEmployee()->company_id)[0]
+        );
+    }
 }

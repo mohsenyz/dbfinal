@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\EmployeeCollection;
 use App\Models\Employee;
+use App\Repositories\EmployeeRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
 {
+
+    protected $employeeRepository;
 
     protected $validationForCreating = [
         'first_name' => 'string|required',
@@ -39,6 +42,12 @@ class EmployeeController extends Controller
         'password' => 'string|nullable|min:6',
         'national_id' => 'numeric|nullable'
     ];
+
+
+    public function __construct(EmployeeRepository $employeeRepository)
+    {
+        $this->employeeRepository = $employeeRepository;
+    }
 
     /**
      * Display a listing of the resource.
@@ -108,5 +117,25 @@ class EmployeeController extends Controller
     {
         $employee->delete();
         return $this->respondSuccess();
+    }
+
+    public function employeesWithoutDeductions() {
+        return $this->employeeRepository
+            ->employeesWithoutDeductions($this->currentEmployee()->company_id);
+    }
+
+    public function employeesWhoWorkedOnFridays() {
+        return $this->employeeRepository
+            ->employeesWhoWorkedOnFridays($this->currentEmployee()->company_id);
+    }
+
+    public function employeesWithTotalAbsencesHours() {
+        return $this->employeeRepository
+            ->employeesWithTotalAbsencesHours($this->currentEmployee()->company_id);
+    }
+
+    public function employeesSortByAmountOfEarnings() {
+        return $this->employeeRepository
+            ->employeesSortByAmountOfEarnings($this->currentEmployee()->company_id);
     }
 }

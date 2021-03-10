@@ -18,6 +18,15 @@ class EmployeeDeductionRepository extends BaseRepository
         ]);
     }
 
+    public function sumOfAllDeductionsAmount() {
+        return Deduction::fromQuery('select sum(amount) from `deductions`');
+    }
+
+
+    public function sumOfAllDeductionsAmountByEmployeeId($id) {
+        return DB::select('select coalesce((sum(amount)), 0) as amount from `deductions` where `reported_to` = ?', [$id]);
+    }
+
     public function updateDeduction($data, $id) {
         return $this->update('deductions', $data, "`id` = ?", [$id]);
     }

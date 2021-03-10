@@ -12,17 +12,6 @@ use App\Http\Controllers\EmployeeLoanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
 Route::group(['prefix' => 'auth'], function ($router) {
 
     Route::post('login', [AuthController::class, 'login'])->name('login');
@@ -46,12 +35,17 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
     Route::put('employee/{employee}/contract/{contract:id}', [EmployeeContractController::class, 'update']);
 
     Route::get('employee', [EmployeeController::class, 'index']);
+    Route::get('employee/withoutDeductions', [EmployeeController::class, 'employeesWithoutDeductions']);
+    Route::get('employee/workedOnFridays', [EmployeeController::class, 'employeesWhoWorkedOnFridays']);
+    Route::get('employee/withTotalAbsencesHours', [EmployeeController::class, 'employeesWithTotalAbsencesHours']);
+    Route::get('employee/sortByEarnings', [EmployeeController::class, 'employeesSortByAmountOfEarnings']);
     Route::post('employee', [EmployeeController::class, 'store']);
     Route::get('employee/{employee}', [EmployeeController::class, 'show']);
     Route::put('employee/{employee}', [EmployeeController::class, 'update']);
     Route::delete('employee/{employee}', [EmployeeController::class, 'destroy']);
 
     Route::get('/employee/{employee}/deduction', [EmployeeDeductionController::class, 'index']);
+    Route::get('/employee/{employee}/deduction/amount', [EmployeeDeductionController::class, 'sumOfAllDeductionsAmountByEmployeeId']);
     Route::post('/employee/{employee}/deduction', [EmployeeDeductionController::class, 'store']);
     Route::get('/employee/{employee}/deduction/{deduction:id}', [EmployeeDeductionController::class, 'show']);
     Route::put('/employee/{employee}/deduction/{deduction:id}', [EmployeeDeductionController::class, 'update']);
@@ -96,12 +90,6 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
     Route::get('/employee/{employee}/loan/{loan:id}', [EmployeeLoanController::class, 'show']);
     Route::put('/employee/{employee}/loan/{loan:id}', [EmployeeLoanController::class, 'update']);
     Route::delete('/employee/{employee}/loan/{loan:id}', [EmployeeLoanController::class, 'destroy']);
-
-    // paycheck (1h)
-
-
-
-    // timesheet (1h)
 
 
 
