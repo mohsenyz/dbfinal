@@ -6,10 +6,18 @@ use App\Http\Resources\EarningCollection;
 use App\Http\Resources\EarningResource;
 use App\Models\Earning;
 use App\Models\Employee;
+use App\Repositories\EmployeeEarningRepository;
 use Illuminate\Http\Request;
 
 class EmployeeEarningController extends Controller
 {
+
+    protected $employeeEarningRepository = null;
+
+    public function __construct(EmployeeEarningRepository $employeeEarningRepository) {
+        $this->employeeEarningRepository = $employeeEarningRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -17,9 +25,10 @@ class EmployeeEarningController extends Controller
      */
     public function index(Employee $employee)
     {
-        return new EarningCollection(
-            $employee->earnings()
-            ->paginate()
+        return Earning::collection(
+            $this->employeeEarningRepository->listEarningsByEmployeeId(
+                $employee->id
+            )
         );
     }
 
@@ -38,10 +47,13 @@ class EmployeeEarningController extends Controller
             'reported_at' => 'datetime|required_at',
         ]);
 
-        $earning = $employee->earnings()
-            ->make($validatedData);
-        $earning->reportedBy()->associate(auth()->user());
-        $earning->save();
+        $this->employeeEarningRepository->createEarning(
+            array_merge(
+                $validatedData,
+                ['reported_by' => auth()->id()]
+            ),
+            $employee->id
+        );
 
         return $this->respondSuccessWithModel($earning);
     }
@@ -52,7 +64,7 @@ class EmployeeEarningController extends Controller
      * @param Earning $earning
      * @return \Illuminate\Http\Response
      */
-    public function show(Earning $earning)
+    public function show(Employee $employee, Earning $earning)
     {
         return new EarningResource($earning);
     }
@@ -72,7 +84,10 @@ class EmployeeEarningController extends Controller
             'reported_at' => 'datetime|nullable',
         ]);
 
-        $earning->update(array_filter($validatedData));
+        $this->employeeEarningRepository->updateEarning(
+            array_filter($validatedData),
+            $earning->id
+        );
 
         return $this->respondSuccess();
     }
@@ -85,7 +100,9 @@ class EmployeeEarningController extends Controller
      */
     public function destroy(Earning $earning)
     {
-        $earning->delete();
+        $this->employeeEarningRepository->deleteEarning(
+            $earning->id
+        );
 
         return $this->respondSuccess();
     }
