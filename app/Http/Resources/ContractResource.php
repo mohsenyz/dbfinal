@@ -14,6 +14,10 @@ class ContractResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return array_merge(parent::toArray($request), $this->salary->only([
+            'medical_allowance',
+            'incentive',
+            'base'
+        ]));
     }
 }

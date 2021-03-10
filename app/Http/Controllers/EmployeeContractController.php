@@ -6,11 +6,28 @@ use App\Http\Resources\ContractCollection;
 use App\Http\Resources\ContractResource;
 use App\Models\Contract;
 use App\Models\Employee;
+use App\Repositories\EmployeeContractRepository;
+use App\Repositories\EmployeeSalaryRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class EmployeeContractController extends Controller
 {
+
+    protected $employeeContractRepo;
+
+    protected $employeeSalaryRepo;
+
+    public function __construct(
+        EmployeeContractRepository $ecRepo,
+        EmployeeSalaryRepository $salaryRepo
+    )
+    {
+        $this->employeeContractRepo = $ecRepo;
+        $this->employeeSalaryRepo = $salaryRepo;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,10 +35,10 @@ class EmployeeContractController extends Controller
      */
     public function currentEmployeeList()
     {
-        return new ContractCollection(
-            $this->currentEmployee()
-                ->contracts()
-                ->paginate()
+        return ContractResource::collection(
+            $this->employeeContractRepo->listContractsByEmployeeId(
+                $this->currentEmployee()->id
+            )
         );
     }
 
@@ -32,8 +49,10 @@ class EmployeeContractController extends Controller
      */
     public function index(Employee $employee)
     {
-        return new ContractCollection(
-            $employee->contracts()->paginate()
+        return ContractResource::collection(
+            $this->employeeContractRepo->listContractsByEmployeeId(
+                $employee->id
+            )
         );
     }
 
@@ -54,34 +73,33 @@ class EmployeeContractController extends Controller
         $request->validate([
             'description' => 'string|nullable',
             'starts_at' => 'date|required',
-            'ends_at' => 'date|required',
+            'ends_at' => 'date|after:starts_at|required',
             'pay_check_period' => [
                 'required',
                 Rule::in([Contract::PERIOD_MONTHLY, Contract::PERIOD_YEARLY])
             ],
             'required_working_hours' => 'numeric|required',
             'allowed_absence_hours' => 'numeric|required',
-
             'medical_allowance' => 'numeric|nullable',
             'incentive' => 'numeric|nullable',
             'base' => 'numeric|required'
         ]);
 
-        $contract = $employee->contracts()->create(
+        $contract = $this->employeeContractRepo->createContract(
             $request->only([
                 'description', 'starts_at', 'ends_at',
                 'pay_check_period', 'required_working_hours',
                 'allowed_absence_hours'
-            ])
+            ]),
+            $employee->id
         );
 
-        $contract->salary()->create(
-            $request->only([
-                'medical_allowance',
-                'incentive',
-                'base'
-            ])
-        );
+
+        $this->employeeSalaryRepo->createSalary($request->only([
+            'medical_allowance',
+            'incentive',
+            'base'
+        ]), $contract->id);
 
         return $this->respondSuccess();
     }
@@ -95,39 +113,40 @@ class EmployeeContractController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Contract $contract)
+    public function update(Request $request, Employee $employee, Contract $contract)
     {
         $request->validate([
             'description' => 'string|nullable',
-            'starts_at' => 'date|nullable',
-            'ends_at' => 'date|nullable',
+            'starts_at' => 'date|required',
+            'ends_at' => 'date|after:starts_at|required',
             'pay_check_period' => [
-                'nullable',
+                'required',
                 Rule::in([Contract::PERIOD_MONTHLY, Contract::PERIOD_YEARLY])
             ],
-            'required_working_hours' => 'numeric|nullable',
-            'allowed_absence_hours' => 'numeric|nullable',
-
-            'medical_allowance' => 'numeric|nullable',
-            'incentive' => 'numeric|nullable',
-            'base' => 'numeric|nullable'
+            'required_working_hours' => 'numeric|required',
+            'allowed_absence_hours' => 'numeric|required',
+            'medical_allowance' => 'numeric|required',
+            'incentive' => 'numeric|required',
+            'base' => 'numeric|required'
         ]);
 
-        $contract->update(
-            $request->only([
+        DB::transaction(function () use (&$request, &$contract) {
+            $this->employeeContractRepo->updateContract($request->only([
                 'description', 'starts_at', 'ends_at',
                 'pay_check_period', 'required_working_hours',
                 'allowed_absence_hours'
-            ])
-        );
+            ]), $contract->id);
 
-        $contract->salary()->update(
-            $request->only([
-                'medical_allowance',
-                'incentive',
-                'base'
-            ])
-        );
+            $this->employeeSalaryRepo->updateSalaryByContract(
+                $request->only([
+                    'medical_allowance',
+                    'incentive',
+                    'base'
+                ]),
+                $contract->id
+            );
+        });
+
 
         return $this->respondSuccess();
     }
@@ -145,26 +164,20 @@ class EmployeeContractController extends Controller
 
 
     public function currentEmployeeActive() {
-        if (!$this->currentEmployee()->activeContract()->exists()) {
-            return $this->respondNotFound([
-                'msg' => 'employee has not any active contract',
-            ]);
-        }
-        return new ContractResource(
-            $this->currentEmployee()
-                ->activeContract
-        );
+        return $this->active($this->currentEmployee());
     }
 
 
     public function active(Employee $employee) {
-        if (!$employee->activeContract()->exists()) {
+        $activeContracts = $this->employeeContractRepo
+            ->listActiveContractsByEmployeeId($employee->id);
+        if (count($activeContracts) == 0) {
             return $this->respondNotFound([
                 'msg' => 'employee has not any active contract',
             ]);
         }
         return new ContractResource(
-            $employee->activeContract
+            $activeContracts->first()
         );
     }
 }
