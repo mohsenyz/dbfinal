@@ -3,10 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Repositories\CompanyRepository;
 use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
+
+    protected $companyRepository;
+
+    public function __construct(CompanyRepository $companyRepository) {
+        $this->companyRepository = $companyRepository;
+    }
 
 
     public function updateCurrent(Request $request, Company $company) {
@@ -16,7 +23,10 @@ class CompanyController extends Controller
             'phone_number' => 'string|nullable'
         ]);
 
-        $company->update($request->validated());
+        $this->companyRepository->updateCompany(
+            $request->validated(),
+            $company->id
+        );
 
         $this->respondSuccess();
     }
