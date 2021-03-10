@@ -7,19 +7,29 @@ use App\Http\Resources\DeductionResource;
 use App\Models\Deduction;
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use App\Repositories\EmployeeDeductionRepository;
 
 class EmployeeDeductionController extends Controller
 {
+
+    protected $employeeDeductionRepository = null;
+
+
+    public function __construct(EmployeeDeductionRepository $employeeDeductionRepository) {
+        $this->employeeDeductionRepository = $employeeDeductionRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
-     * @return DeductionCollection
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index(Employee $employee)
     {
-        return new DeductionCollection(
-            $employee->deductions()
-                ->paginate()
+        return DeductionResource::collection(
+            $this->employeeDeductionRepository->listDeductionsByEmployeeId(
+                $employee->id
+            )
         );
     }
 
@@ -39,10 +49,13 @@ class EmployeeDeductionController extends Controller
             'description' => 'string|nullable'
         ]);
 
-        $deduction = $employee->deductions()
-            ->make($validatedData);
-        $deduction->reportedBy()->associate(auth()->user());
-        $deduction->save();
+        $deduction = $this->employeeDeductionRepository->createDeduction(
+            array_merge(
+                $validatedData,
+                ['reported_by' => auth()->id()]
+            ),
+            $employee->id
+        );
 
         return $this->respondSuccessWithModel($deduction);
     }
@@ -75,7 +88,10 @@ class EmployeeDeductionController extends Controller
             'description' => 'string|nullable'
         ]);
 
-        $deduction->update(array_filter($validatedData));
+        $this->employeeDeductionRepository->updateDeduction(
+            array_filter($validatedData),
+            $deduction->id
+        );
 
         return $this->respondSuccess();
     }
@@ -88,8 +104,9 @@ class EmployeeDeductionController extends Controller
      */
     public function destroy(Deduction $deduction)
     {
-        $deduction->delete();
-
+        $this->employeeDeductionRepository->deleteDeduction(
+            $deduction->id
+        );
         return $this->respondSuccess();
     }
 }
