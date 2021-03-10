@@ -18,8 +18,8 @@ class CreateEarningsTable extends Migration
             $table->string('type');
             $table->integer('amount');
             $table->timestamp('reported_at');
-            $table->foreignIdFor(\App\Models\Employee::class, 'reported_by');
-            $table->foreignIdFor(\App\Models\Employee::class, 'reported_to');
+            $table->foreignIdFor(\App\Models\Employee::class, 'reported_by')->references('id')->on('employees');
+            $table->foreignIdFor(\App\Models\Employee::class, 'reported_to')->references('id')->on('employees');
             $table->timestamps();
         });
     }

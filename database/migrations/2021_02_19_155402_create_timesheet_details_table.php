@@ -19,7 +19,7 @@ class CreateTimesheetDetailsTable extends Migration
             $table->text('description');
             $table->timestamp('started_at')->useCurrent();
             $table->timestamp('ended_at')->nullable();
-            $table->foreignIdFor(Timesheet::class);
+            $table->foreignIdFor(Timesheet::class)->references('id')->on('timesheets');
         });
     }
 

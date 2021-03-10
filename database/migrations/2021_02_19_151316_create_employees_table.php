@@ -26,7 +26,7 @@ class CreateEmployeesTable extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreignIdFor(\App\Models\Company::class)->nullable();
+            $table->foreignIdFor(\App\Models\Company::class)->nullable()->references('id')->on('companies');
         });
     }
 

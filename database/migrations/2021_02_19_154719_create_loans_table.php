@@ -22,9 +22,9 @@ class CreateLoansTable extends Migration
             $table->timestamp('accepted_at')->nullable();
             $table->timestamp('rejected_at')->nullable();
 
-            $table->foreignIdFor(Employee::class, 'accepted_by')->nullable();
-            $table->foreignIdFor(Employee::class, 'rejected_by')->nullable();
-            $table->foreignIdFor(Employee::class, 'requested_by');
+            $table->foreignIdFor(Employee::class, 'accepted_by')->nullable()->references('id')->on('employees');
+            $table->foreignIdFor(Employee::class, 'rejected_by')->nullable()->references('id')->on('employees');
+            $table->foreignIdFor(Employee::class, 'requested_by')->references('id')->on('employees');
             $table->timestamps();
         });
     }

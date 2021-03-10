@@ -23,7 +23,7 @@ class CreatePayChecksTable extends Migration
             $table->timestamp('end_date');
             $table->timestamps();
 
-            $table->foreignIdFor(Employee::class);
+            $table->foreignIdFor(Employee::class)->references('id')->on('employees');
         });
     }
 

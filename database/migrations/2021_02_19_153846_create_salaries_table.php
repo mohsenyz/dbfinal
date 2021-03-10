@@ -20,7 +20,7 @@ class CreateSalariesTable extends Migration
             $table->integer('incentive');
             $table->integer('base');
 
-            $table->foreignIdFor(Contract::class);
+            $table->foreignIdFor(Contract::class)->references('id')->on('contracts');
 
             $table->timestamps();
         });

@@ -23,7 +23,7 @@ class CreateContractsTable extends Migration
             $table->integer('required_working_hours');
             $table->integer('allowed_absence_hours');
 
-            $table->foreignIdFor(Employee::class);
+            $table->foreignIdFor(Employee::class)->references('id')->on('employees');
 
             $table->timestamps();
         });

@@ -19,7 +19,13 @@ CREATE TABLE `absences` (
   `requested_by` bigint unsigned NOT NULL,
   `accepted_by` bigint unsigned DEFAULT NULL,
   `rejected_by` bigint unsigned DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `absences_requested_by_foreign` (`requested_by`),
+  KEY `absences_accepted_by_foreign` (`accepted_by`),
+  KEY `absences_rejected_by_foreign` (`rejected_by`),
+  CONSTRAINT `absences_accepted_by_foreign` FOREIGN KEY (`accepted_by`) REFERENCES `employees` (`id`),
+  CONSTRAINT `absences_rejected_by_foreign` FOREIGN KEY (`rejected_by`) REFERENCES `employees` (`id`),
+  CONSTRAINT `absences_requested_by_foreign` FOREIGN KEY (`requested_by`) REFERENCES `employees` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `assistances`;
@@ -35,7 +41,13 @@ CREATE TABLE `assistances` (
   `requested_by` bigint unsigned NOT NULL,
   `accepted_by` bigint unsigned DEFAULT NULL,
   `rejected_by` bigint unsigned DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `assistances_requested_by_foreign` (`requested_by`),
+  KEY `assistances_accepted_by_foreign` (`accepted_by`),
+  KEY `assistances_rejected_by_foreign` (`rejected_by`),
+  CONSTRAINT `assistances_accepted_by_foreign` FOREIGN KEY (`accepted_by`) REFERENCES `employees` (`id`),
+  CONSTRAINT `assistances_rejected_by_foreign` FOREIGN KEY (`rejected_by`) REFERENCES `employees` (`id`),
+  CONSTRAINT `assistances_requested_by_foreign` FOREIGN KEY (`requested_by`) REFERENCES `employees` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `companies`;
@@ -65,7 +77,9 @@ CREATE TABLE `contracts` (
   `employee_id` bigint unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `contracts_employee_id_foreign` (`employee_id`),
+  CONSTRAINT `contracts_employee_id_foreign` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `deductions`;
@@ -81,7 +95,11 @@ CREATE TABLE `deductions` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `reported_by` bigint unsigned NOT NULL,
   `reported_to` bigint unsigned NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `deductions_reported_by_foreign` (`reported_by`),
+  KEY `deductions_reported_to_foreign` (`reported_to`),
+  CONSTRAINT `deductions_reported_by_foreign` FOREIGN KEY (`reported_by`) REFERENCES `employees` (`id`),
+  CONSTRAINT `deductions_reported_to_foreign` FOREIGN KEY (`reported_to`) REFERENCES `employees` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `earnings`;
@@ -96,7 +114,11 @@ CREATE TABLE `earnings` (
   `reported_to` bigint unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `earnings_reported_by_foreign` (`reported_by`),
+  KEY `earnings_reported_to_foreign` (`reported_to`),
+  CONSTRAINT `earnings_reported_by_foreign` FOREIGN KEY (`reported_by`) REFERENCES `employees` (`id`),
+  CONSTRAINT `earnings_reported_to_foreign` FOREIGN KEY (`reported_to`) REFERENCES `employees` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `employees`;
@@ -118,7 +140,9 @@ CREATE TABLE `employees` (
   `company_id` bigint unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `employees_username_unique` (`username`),
-  UNIQUE KEY `employees_phone_number_unique` (`phone_number`)
+  UNIQUE KEY `employees_phone_number_unique` (`phone_number`),
+  KEY `employees_company_id_foreign` (`company_id`),
+  CONSTRAINT `employees_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `failed_jobs`;
@@ -147,7 +171,9 @@ CREATE TABLE `installments` (
   `due_date` timestamp NOT NULL,
   `given_back_at` timestamp NULL DEFAULT NULL,
   `loan_id` bigint unsigned NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `installments_loan_id_foreign` (`loan_id`),
+  CONSTRAINT `installments_loan_id_foreign` FOREIGN KEY (`loan_id`) REFERENCES `loans` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `loans`;
@@ -165,7 +191,13 @@ CREATE TABLE `loans` (
   `requested_by` bigint unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `loans_accepted_by_foreign` (`accepted_by`),
+  KEY `loans_rejected_by_foreign` (`rejected_by`),
+  KEY `loans_requested_by_foreign` (`requested_by`),
+  CONSTRAINT `loans_accepted_by_foreign` FOREIGN KEY (`accepted_by`) REFERENCES `employees` (`id`),
+  CONSTRAINT `loans_rejected_by_foreign` FOREIGN KEY (`rejected_by`) REFERENCES `employees` (`id`),
+  CONSTRAINT `loans_requested_by_foreign` FOREIGN KEY (`requested_by`) REFERENCES `employees` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `migrations`;
@@ -191,7 +223,9 @@ CREATE TABLE `pay_checks` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `employee_id` bigint unsigned NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `pay_checks_employee_id_foreign` (`employee_id`),
+  CONSTRAINT `pay_checks_employee_id_foreign` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `salaries`;
@@ -205,7 +239,9 @@ CREATE TABLE `salaries` (
   `contract_id` bigint unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `salaries_contract_id_foreign` (`contract_id`),
+  CONSTRAINT `salaries_contract_id_foreign` FOREIGN KEY (`contract_id`) REFERENCES `contracts` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `timesheet_details`;
@@ -217,7 +253,9 @@ CREATE TABLE `timesheet_details` (
   `started_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ended_at` timestamp NULL DEFAULT NULL,
   `timesheet_id` bigint unsigned NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `timesheet_details_timesheet_id_foreign` (`timesheet_id`),
+  CONSTRAINT `timesheet_details_timesheet_id_foreign` FOREIGN KEY (`timesheet_id`) REFERENCES `timesheets` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `timesheets`;

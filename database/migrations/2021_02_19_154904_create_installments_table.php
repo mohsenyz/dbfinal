@@ -22,7 +22,7 @@ class CreateInstallmentsTable extends Migration
             $table->timestamp('due_date');
             $table->timestamp('given_back_at')->nullable();
 
-            $table->foreignIdFor(Loan::class);
+            $table->foreignIdFor(Loan::class)->references('id')->on('loans');
         });
     }
 

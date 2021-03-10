@@ -22,8 +22,8 @@ class CreateDeductionsTable extends Migration
             $table->timestamp('reported_at');
             $table->timestamps();
 
-            $table->foreignIdFor(Employee::class, 'reported_by');
-            $table->foreignIdFor(Employee::class, 'reported_to');
+            $table->foreignIdFor(Employee::class, 'reported_by')->references('id')->on('employees');
+            $table->foreignIdFor(Employee::class, 'reported_to')->references('id')->on('employees');
         });
     }
 
