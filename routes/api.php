@@ -2,10 +2,13 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\EmployeeAbsenceController;
+use App\Http\Controllers\EmployeeAssistanceController;
 use App\Http\Controllers\EmployeeContractController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDeductionController;
 use App\Http\Controllers\EmployeeEarningController;
+use App\Http\Controllers\EmployeeLoanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -52,7 +55,7 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
 
     Route::get('/employee/{employee}/earning', [EmployeeEarningController::class, 'index']);
     Route::post('/employee/{employee}/earning', [EmployeeEarningController::class, 'store']);
-    Route::get('/employee/{employee}/earning/{earning,:id}', [EmployeeEarningController::class, 'show']);
+    Route::get('/employee/{employee}/earning/{earning:id}', [EmployeeEarningController::class, 'show']);
     Route::put('/employee/{employee}/earning/{earning:id}', [EmployeeEarningController::class, 'update']);
     Route::delete('/employee/{employee}/earning/{earning:id}', [EmployeeEarningController::class, 'destroy']);
 
@@ -60,17 +63,35 @@ Route::group(['middleware' => ['auth:api']], function ($router) {
 
 
     // absences (1h)
-
+    Route::get('/employee/{employee}/absence', [EmployeeAbsenceController::class, 'index']);
+    Route::post('/employee/{employee}/absence', [EmployeeAbsenceController::class, 'store']);
+    Route::post('/employee/{employee}/absence/{absence:id}/accept', [EmployeeAbsenceController::class, 'accept']);
+    Route::post('/employee/{employee}/absence/{absence:id}/reject', [EmployeeAbsenceController::class, 'reject']);
+    Route::get('/employee/{employee}/absence/{absence:id}', [EmployeeAbsenceController::class, 'show']);
+    Route::put('/employee/{employee}/absence/{absence:id}', [EmployeeAbsenceController::class, 'update']);
+    Route::delete('/employee/{employee}/absence/{absence:id}', [EmployeeAbsenceController::class, 'destroy']);
 
 
     // assistance (1h)
-
-
-    // earning (1h)
-
+    Route::get('/employee/{employee}/assistance', [EmployeeAssistanceController::class, 'index']);
+    Route::post('/employee/{employee}/assistance', [EmployeeAssistanceController::class, 'store']);
+    Route::post('/employee/{employee}/assistance/{assistance:id}/accept', [EmployeeAssistanceController::class, 'accept']);
+    Route::post('/employee/{employee}/assistance/{assistance:id}/reject', [EmployeeAssistanceController::class, 'reject']);
+    Route::post('/employee/{employee}/assistance/{assistance:id}/pay', [EmployeeAssistanceController::class, 'pay']);
+    Route::get('/employee/{employee}/assistance/{assistance:id}', [EmployeeAssistanceController::class, 'show']);
+    Route::put('/employee/{employee}/assistance/{assistance:id}', [EmployeeAssistanceController::class, 'update']);
+    Route::delete('/employee/{employee}/assistance/{assistance:id}', [EmployeeAssistanceController::class, 'destroy']);
 
     // installment and loan (1h)
-
+    Route::get('/employee/{employee}/loan', [EmployeeLoanController::class, 'index']);
+    Route::post('/employee/{employee}/loan', [EmployeeLoanController::class, 'store']);
+    Route::post('/employee/{employee}/loan/{loan:id}/accept', [EmployeeLoanController::class, 'accept']);
+    Route::post('/employee/{employee}/loan/{loan:id}/reject', [EmployeeLoanController::class, 'reject']);
+    Route::post('/employee/{employee}/loan/{loan:id}/pay', [EmployeeLoanController::class, 'pay']);
+    Route::post('/employee/{employee}/loan/{loan:id}/{installment:ins_id}', [EmployeeLoanController::class, 'payInstallment']);
+    Route::get('/employee/{employee}/loan/{loan:id}', [EmployeeLoanController::class, 'show']);
+    Route::put('/employee/{employee}/loan/{loan:id}', [EmployeeLoanController::class, 'update']);
+    Route::delete('/employee/{employee}/loan/{loan:id}', [EmployeeLoanController::class, 'destroy']);
 
     // paycheck (1h)
 
