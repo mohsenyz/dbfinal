@@ -31,4 +31,14 @@ class CompanyController extends Controller
         $this->respondSuccess();
     }
 
+
+    public function listCompaniesWithEmployeesCount() {
+        return $this->companyRepository->listCompaniesWithEmployeesCount();
+    }
+
+
+    public function totalWorkingHoursOfCompaniesEmployeesOnFridays() {
+        return $this->companyRepository->totalWorkingHoursOfCompaniesEmployeesOnFridays();
+    }
+
 }

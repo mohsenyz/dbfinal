@@ -32,6 +32,9 @@ Route::group(['prefix' => 'auth'], function ($router) {
 
 });
 
+Route::get('company/with_employees_count', [CompanyController::class, 'listCompaniesWithEmployeesCount']);
+Route::get('company/working_hours_on_fridays', [CompanyController::class, 'totalWorkingHoursOfCompaniesEmployeesOnFridays']);
+
 Route::group(['middleware' => ['auth:api']], function ($router) {
 
     Route::get('contract', [EmployeeContractController::class, 'currentEmployeeList']);
