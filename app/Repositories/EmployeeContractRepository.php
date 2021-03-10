@@ -24,6 +24,17 @@ class EmployeeContractRepository extends BaseRepository
         ]);
     }
 
+
+    public function contractsExpiringInNextMonth($companyId) {
+        return Contract::fromQuery(<<<'TAG'
+select * from `contracts` where ends_at <= date_add(now(), interval 1 month)
+and contracts.employee_id in (select id from employees where employees.company_id = ?)
+TAG
+, [
+            $companyId
+        ]);
+    }
+
     public function updateContract($data, $id) {
         return $this->update('contracts', $data, "`id` = ?", [$id]);
     }

@@ -28,6 +28,12 @@ class EmployeeContractController extends Controller
         $this->employeeSalaryRepo = $salaryRepo;
     }
 
+
+    public function companyContractsExpiringNextMonth() {
+        return $this->employeeContractRepo
+            ->contractsExpiringInNextMonth($this->currentEmployee()->company_id);
+    }
+
     /**
      * Display a listing of the resource.
      *

@@ -35,6 +35,7 @@ Route::group(['prefix' => 'auth'], function ($router) {
 Route::group(['middleware' => ['auth:api']], function ($router) {
 
     Route::get('contract', [EmployeeContractController::class, 'currentEmployeeList']);
+    Route::get('company/contract/expiring_next_month', [EmployeeContractController::class, 'companyContractsExpiringNextMonth']);
     Route::get('contract/active', [EmployeeContractController::class, 'currentEmployeeActive']);
     Route::get('employee/{employee}/contract', [EmployeeContractController::class, 'index']);
     Route::get('employee/{employee}/contract/active', [EmployeeContractController::class, 'active']);
