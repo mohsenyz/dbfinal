@@ -3,12 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AssistanceCollection;
+use App\Http\Resources\AssistanceResource;
 use App\Models\Employee;
+use App\Repositories\EmployeeAssistanceRepository;
 use Illuminate\Http\Request;
+use App\Models\Assistance;
 use Illuminate\Validation\ValidationException;
 
 class EmployeeAssistanceController extends Controller
 {
+
+    protected $employeeAssistanceRepository;
+
+    public function __construct(EmployeeAssistanceRepository $employeeAssistanceRepository)
+    {
+        $this->employeeAssistanceRepository = $employeeAssistanceRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,9 +27,10 @@ class EmployeeAssistanceController extends Controller
      */
     public function index(Employee $employee)
     {
-        return new AssistanceCollection(
-            $employee->assistances()
-                ->paginate()
+        return AssistanceResource::collection(
+            $this->employeeAssistanceRepository->listAssistanceByEmployeeId(
+                $employee->id
+            )
         );
     }
 
@@ -30,12 +42,12 @@ class EmployeeAssistanceController extends Controller
      */
     public function store(Request $request, Employee $employee)
     {
-        $request->validate([
+        $validated = $request->validate([
             'amount' => 'numeric|required',
         ]);
 
-        $assistance = $employee->assistances()
-            ->create($request->validated());
+        $this->employeeAssistanceRepository
+            ->createAssistance($validated, $employee->id);
 
         return $this->respondSuccess();
     }
@@ -58,44 +70,43 @@ class EmployeeAssistanceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Assistance $assistance)
+    public function update(Request $request, Employee $employee, Assistance $assistance)
     {
-        $request->validate([
+        $validated = $request->validate([
             'amount' => 'numeric|nullable',
             'paid_at' => 'datetime|nullable',
         ]);
 
-        $assistance->update($request->validated());
+        $this->employeeAssistanceRepository
+            ->updateAssistance($validated, $employee->id);
 
         return $this->respondSuccess();
     }
 
 
-    public function accept(Request $request, Assistance $assistance) {
+    public function accept(Request $request, Employee $employee, Assistance $assistance) {
         if ($assistance->accepted_at != null || $assistance->rejected_at != null) {
             throw ValidationException::withMessages(['model' => 'Model is already accepted/rejected']);
         }
 
         $assistance->accept();
-        $assistance->save();
 
         return $this->respondSuccess();
     }
 
 
-    public function reject(Request $request, Assistance $assistance) {
+    public function reject(Request $request, Employee $employee, Assistance $assistance) {
         if ($assistance->accepted_at != null || $assistance->rejected_at != null) {
             throw ValidationException::withMessages(['model' => 'Model is already accepted/rejected']);
         }
 
         $assistance->reject();
-        $assistance->save();
 
         return $this->respondSuccess();
     }
 
 
-    public function pay(Request $request, Assistance $assistance) {
+    public function pay(Request $request, Employee $employee, Assistance $assistance) {
         if ($assistance->paid_at != null) {
             throw ValidationException::withMessages(['model' => 'Already paid']);
         }
@@ -105,7 +116,6 @@ class EmployeeAssistanceController extends Controller
         }
 
         $assistance->pay();
-        $assistance->save();
 
         return $this->respondSuccess();
     }
@@ -118,7 +128,8 @@ class EmployeeAssistanceController extends Controller
      */
     public function destroy(Assistance $assistance)
     {
-        $assistance->delete();
+        $this->employeeAssistanceRepository
+            ->deleteAssistance($assistance->id);
 
         return $this->respondSuccess();
     }

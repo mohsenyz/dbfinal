@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Repositories\EmployeeAssistanceRepository;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -38,6 +39,8 @@ class Assistance extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'amount',
         'paid_at',
@@ -58,19 +61,27 @@ class Assistance extends Model
         return $this->belongsTo(Employee::class, 'rejected_by');
     }
 
+    public function pay() {
+        resolve(EmployeeAssistanceRepository::class)
+            ->updateAssistance([
+                'paid_at' => now(),
+            ], $this->getAttribute('id'));
+    }
+
     public function accept() {
-        $this->setAttribute('accepted_at', now());
-        $this->acceptedBy()->associate(auth()->user());
+        resolve(EmployeeAssistanceRepository::class)
+            ->updateAssistance([
+                'accepted_at' => now(),
+                'accepted_by' => auth()->user()->id
+            ], $this->getAttribute('id'));
     }
 
 
     public function reject() {
-        $this->setAttribute('rejected_by', now());
-        $this->rejectedBy()->associate(auth()->user());
-    }
-
-
-    public function pay() {
-        $this->setAttribute('paid_at', now());
+        resolve(EmployeeAssistanceRepository::class)
+            ->updateAssistance([
+                'rejected_at' => now(),
+                'rejected_by' => auth()->user()->id
+            ], $this->getAttribute('id'));
     }
 }
